@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pêche">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#071923">
+<title>Score pêche météo</title>
+
+<style>
+:root {
+  --bg: #06151d;
+  --bg2: #0b2230;
+  --card: rgba(13, 35, 47, .92);
+  --card2: rgba(17, 48, 62, .82);
+  --line: rgba(255,255,255,.10);
+  --text: #f7fbff;
+  --muted: #b8c8d3;
+  --green: #39d774;
+  --green2: #167a3b;
+  --blue: #36b7ff;
+  --gold: #f2c56b;
+  --red: #ef5350;
+  --shadow: 0 20px 55px rgba(0,0,0,.35);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(57,215,116,.16), transparent 35%),
+    radial-gradient(circle at 90% 10%, rgba(54,183,255,.14), transparent 32%),
+    linear-gradient(180deg, #06151d 0%, #071923 45%, #050d13 100%);
+  color: var(--text);
+}
+
+.app {
+  max-width: 520px;
+  margin: auto;
+  padding: max(18px, env(safe-area-inset-top)) 16px 92px;
+}
+
+.hero {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 10px 0 20px;
+}
+
+.logo {
+  width: 62px;
+  height: 62px;
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(0,0,0,.45);
+}
+
+.hero-title {
+  flex: 1;
+}
+
+h1 {
+  margin: 0;
+  font-size: 34px;
+  line-height: 1;
+  color: var(--gold);
+  letter-spacing: -.7px;
+}
+
+.subtitle {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.card {
+  background: linear-gradient(180deg, var(--card), rgba(7,24,34,.92));
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 18px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+}
+
+.card.soft {
+  background: linear-gradient(180deg, rgba(17,48,62,.72), rgba(7,24,34,.76));
+}
+
+.section-title {
+  margin: 0 0 14px;
+  font-size: 13px;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: .9px;
+}
+
+label {
+  display: block;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+select {
+  width: 100%;
+  padding: 15px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.25);
+  color: var(--text);
+  font-size: 17px;
+  outline: none;
+}
+
+button {
+  width: 100%;
+  padding: 16px;
+  margin-top: 12px;
+  border: none;
+  border-radius: 17px;
+  background: linear-gradient(180deg, #21a04f, #137234);
+  color: white;
+  font-size: 16px;
+  font-weight: 800;
+  box-shadow: 0 10px 25px rgba(19,114,52,.35);
+}
+
+button.secondary {
+  background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+  border: 1px solid rgba(255,255,255,.12);
+  box-shadow: none;
+}
+
+button.danger {
+  background: linear-gradient(180deg, #c03939, #8f2424);
+  box-shadow: 0 10px 25px rgba(143,36,36,.32);
+}
+
+button.small-danger {
+  width: auto;
+  padding: 9px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  background: rgba(239,83,80,.18);
+  border: 1px solid rgba(239,83,80,.35);
+  box-shadow: none;
+  color: #ffd0d0;
+}
+
+.status-line {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.score-wrap {
+  text-align: center;
+  margin: 12px 0 18px;
+}
+
+.score {
+  width: 172px;
+  height: 172px;
+  margin: auto;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 38px;
+  font-weight: 900;
+  border: 10px solid rgba(255,255,255,.08);
+  box-shadow: inset 0 0 35px rgba(0,0,0,.45), 0 18px 36px rgba(0,0,0,.32);
+}
+
+.good { background: radial-gradient(circle, #39d774, #0a6e33); }
+.medium { background: radial-gradient(circle, #ffd05f, #b96b00); color: #1a1a1a; }
+.bad { background: radial-gradient(circle, #ff6b6b, #8f2424); }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.info {
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.08);
+}
+
+.info small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.info strong {
+  font-size: 16px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.stat-card {
+  padding: 17px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: linear-gradient(135deg, rgba(57,215,116,.17), rgba(255,255,255,.04));
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stat-card.blue {
+  background: linear-gradient(135deg, rgba(54,183,255,.16), rgba(255,255,255,.04));
+}
+
+.stat-card.gold {
+  background: linear-gradient(135deg, rgba(242,197,107,.18), rgba(255,255,255,.04));
+}
+
+.stat-label {
+  color: var(--muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: .7px;
+}
+
+.stat-number {
+  font-size: 34px;
+  font-weight: 900;
+}
+
+.session {
+  background: rgba(255,255,255,.055);
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 18px;
+  padding: 15px;
+  margin-bottom: 12px;
+}
+
+.session strong {
+  color: var(--gold);
+}
+
+.session-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+  color: var(--muted);
+}
+
+.session-row b {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.bottom-nav {
+  position: fixed;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  width: min(488px, calc(100% - 28px));
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 10px;
+  border-radius: 24px;
+  background: rgba(4,15,22,.86);
+  border: 1px solid rgba(255,255,255,.12);
+  box-shadow: 0 18px 50px rgba(0,0,0,.55);
+  backdrop-filter: blur(18px);
+}
+
+.nav-item {
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  text-decoration: none;
+  padding: 7px 4px;
+  border-radius: 16px;
+}
+
+.nav-item span {
+  display: block;
+  font-size: 20px;
+  margin-bottom: 2px;
+}
+
+.nav-item.active {
+  color: var(--green);
+  background: rgba(57,215,116,.10);
+}
+
+.small {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 16px 0;
+}
+
+.species-stats {
+  margin-top: 14px;
+  display: grid;
+  gap: 9px;
+}
+
+.species-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 11px 13px;
+  border-radius: 15px;
+  background: rgba(255,255,255,.055);
+  border: 1px solid rgba(255,255,255,.08);
+}
+
+.species-stat span {
+  color: var(--muted);
+}
+
+.species-stat b {
+  color: var(--gold);
+  font-size: 18px;
+}
+
+</style>
+</head>
+
+<body>
+<div class="app">
+
+  <header class="hero">
+    <img class="logo" src="apple-touch-icon.png" alt="Icône Score pêche" onerror="this.style.display='none'">
+    <div class="hero-title">
+      <h1>Score Pêche</h1>
+      <div class="subtitle">Analyse météo, prises et historique hors ligne</div>
+    </div>
+  </header>
+
+  <section id="accueil" class="card">
+    <div class="section-title">Analyse</div>
+    <label for="species">Espèce recherchée</label>
+    <select id="species">
+      <option value="brochet">Brochet</option>
+      <option value="sandre">Sandre</option>
+      <option value="perche">Perche</option>
+      <option value="gardon">Gardon</option>
+      <option value="carassin">Carassin</option>
+      <option value="carpe">Carpe</option>
+      <option value="truite">Truite</option>
+      <option value="chevesne">Chevesne</option>
+      <option value="goujon">Goujon</option>
+      <option value="aspe">Aspe</option>
+    </select>
+
+    <button onclick="getFishingWeather()">📍 Analyser ma position</button>
+    <button class="secondary" onclick="useSavedSpot()">🎯 Utiliser mon dernier spot</button>
+  </section>
+
+  <section id="result" class="card soft">
+    <div class="status-line">Lance une analyse pour voir ton score de pêche.</div>
+  </section>
+
+  <section class="card">
+    <div class="section-title">Ma session</div>
+    <button onclick="saveSession('prise')">🎣 J’ai pris du poisson</button>
+    <button class="danger" onclick="saveSession('rien')">✕ Rien aujourd’hui</button>
+  </section>
+
+  <section id="stats-section" class="card">
+    <div class="section-title">Statistiques</div>
+    <div id="stats" class="stats-grid">
+      <div class="status-line">Chargement des statistiques...</div>
+    </div>
+  </section>
+
+  <section id="historique" class="card">
+    <div class="section-title">Historique</div>
+    <div id="history">Aucune session enregistrée.</div>
+    <button class="secondary" onclick="restoreTodayHistoryManually()">↩️ Restaurer mon historique du jour</button>
+    <button class="danger" onclick="clearHistory()">🗑️ Effacer tout l’historique</button>
+  </section>
+
+</div>
+
+<nav class="bottom-nav">
+  <a class="nav-item active" href="#accueil"><span>⌂</span>Accueil</a>
+  <a class="nav-item" href="#historique"><span>◴</span>Historique</a>
+  <a class="nav-item" href="#stats-section"><span>▮</span>Stats</a>
+</nav>
+
+<script>
+let lastSessionData = null;
+
+function restoreKnownHistoryIfNeeded() {
+  const sessions = JSON.parse(localStorage.getItem("sessionsPeche")) || [];
+  const alreadyRestored = localStorage.getItem("restaurationHistoriquePecheV1");
+
+  if (sessions.length > 0 || alreadyRestored === "ok") {
+    return;
+  }
+
+  const today = new Date();
+  const dateText = today.toLocaleDateString("fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  });
+
+  const restored = [
+    {
+      date: dateText,
+      espece: "carassin",
+      resultat: "prise",
+      score: 0,
+      temperature: "-",
+      pression: "-",
+      vent: "-",
+      pluie: "-",
+      nuages: "-",
+      lune: "-",
+      saison: "-",
+      restored: true
+    },
+    {
+      date: dateText,
+      espece: "gardon",
+      resultat: "prise",
+      score: 0,
+      temperature: "-",
+      pression: "-",
+      vent: "-",
+      pluie: "-",
+      nuages: "-",
+      lune: "-",
+      saison: "-",
+      restored: true
+    },
+    {
+      date: dateText,
+      espece: "gardon",
+      resultat: "prise",
+      score: 0,
+      temperature: "-",
+      pression: "-",
+      vent: "-",
+      pluie: "-",
+      nuages: "-",
+      lune: "-",
+      saison: "-",
+      restored: true
+    }
+  ];
+
+  localStorage.setItem("sessionsPeche", JSON.stringify(restored));
+  localStorage.setItem("restaurationHistoriquePecheV1", "ok");
+}
+
+function restoreTodayHistoryManually() {
+  const confirmRestore = confirm("Restaurer l’historique du jour : 1 carassin et 2 gardons ? Les anciennes données météo détaillées ne peuvent pas être recréées automatiquement.");
+  if (!confirmRestore) return;
+
+  localStorage.removeItem("restaurationHistoriquePecheV1");
+  localStorage.setItem("sessionsPeche", "[]");
+  restoreKnownHistoryIfNeeded();
+  showHistory();
+  updateStats();
+  alert("Historique restauré : 1 carassin et 2 gardons 👍");
+}
+
+
+function prettySpecies(value) {
+  const names = {
+    brochet: "Brochet",
+    sandre: "Sandre",
+    perche: "Perche",
+    gardon: "Gardon",
+    carassin: "Carassin",
+    carpe: "Carpe",
+    truite: "Truite",
+    chevesne: "Chevesne",
+    goujon: "Goujon",
+    aspe: "Aspe"
+  };
+  return names[value] || value;
+}
+
+function updateStats() {
+  const sessions = JSON.parse(localStorage.getItem("sessionsPeche")) || [];
+  const today = new Date();
+
+  let daily = 0;
+  let monthly = 0;
+  let yearly = 0;
+
+  const speciesOrder = ["brochet", "sandre", "perche", "gardon", "carassin", "carpe", "truite", "chevesne", "goujon", "aspe"];
+  const speciesCounts = {};
+
+  speciesOrder.forEach(s => speciesCounts[s] = 0);
+
+  sessions.forEach(item => {
+    if (item.resultat !== "prise") return;
+
+    if (item.espece) {
+      speciesCounts[item.espece] = (speciesCounts[item.espece] || 0) + 1;
+    }
+
+    const d = parseFrenchDate(item.date);
+    if (!d) return;
+
+    if (
+      d.getDate() === today.getDate() &&
+      d.getMonth() === today.getMonth() &&
+      d.getFullYear() === today.getFullYear()
+    ) daily++;
+
+    if (
+      d.getMonth() === today.getMonth() &&
+      d.getFullYear() === today.getFullYear()
+    ) monthly++;
+
+    if (d.getFullYear() === today.getFullYear()) yearly++;
+  });
+
+  let speciesHtml = "";
+
+  speciesOrder.forEach(species => {
+    const count = speciesCounts[species] || 0;
+    if (count > 0) {
+      speciesHtml += `
+        <div class="species-stat">
+          <span>${prettySpecies(species)}</span>
+          <b>${count}</b>
+        </div>
+      `;
+    }
+  });
+
+  if (!speciesHtml) {
+    speciesHtml = "<div class='status-line'>Aucune prise enregistrée par espèce.</div>";
+  }
+
+  document.getElementById("stats").innerHTML = `
+    <div class="stat-card">
+      <div><div class="stat-label">Prises du jour</div><div class="small">Aujourd’hui</div></div>
+      <div class="stat-number">${daily}</div>
+    </div>
+    <div class="stat-card blue">
+      <div><div class="stat-label">Prises du mois</div><div class="small">Mois en cours</div></div>
+      <div class="stat-number">${monthly}</div>
+    </div>
+    <div class="stat-card gold">
+      <div><div class="stat-label">Prises de l’année</div><div class="small">Année en cours</div></div>
+      <div class="stat-number">${yearly}</div>
+    </div>
+
+    <hr>
+    <div class="section-title">Prises par poisson</div>
+    <div class="species-stats">
+      ${speciesHtml}
+    </div>
+  `;
+}
+
+function parseFrenchDate(text) {
+  if (!text) return null;
+  const months = {
+    janvier: 0, février: 1, fevrier: 1, mars: 2, avril: 3, mai: 4, juin: 5,
+    juillet: 6, août: 7, aout: 7, septembre: 8, octobre: 9, novembre: 10, décembre: 11, decembre: 11
+  };
+  const match = String(text).toLowerCase().match(/(\d{1,2})\s+([a-zéûîôèàùç]+)\s+(\d{4})/i);
+  if (!match) return null;
+  const day = parseInt(match[1], 10);
+  const month = months[match[2]];
+  const year = parseInt(match[3], 10);
+  if (month === undefined) return null;
+  return new Date(year, month, day);
+}
+
+function saveSpot(lat, lon) {
+  localStorage.setItem("monSpotPeche", JSON.stringify({
+    latitude: lat,
+    longitude: lon
+  }));
+}
+
+function useSavedSpot() {
+  const saved = localStorage.getItem("monSpotPeche");
+
+  if (!saved) {
+    document.getElementById("result").innerHTML = "<div class='status-line'>Aucun spot enregistré.</div>";
+    return;
+  }
+
+  const spot = JSON.parse(saved);
+  analyseWeather(spot.latitude, spot.longitude, true);
+}
+
+function getFishingWeather() {
+  const result = document.getElementById("result");
+  result.innerHTML = "<div class='status-line'>Recherche de ta position...</div>";
+
+  navigator.geolocation.getCurrentPosition(
+    function(position) {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+
+      saveSpot(lat, lon);
+      analyseWeather(lat, lon, false);
+    },
+    function() {
+      result.innerHTML = "<div class='status-line'>Localisation refusée ou impossible.</div>";
+    }
+  );
+}
+
+async function analyseWeather(lat, lon, savedSpot) {
+  const result = document.getElementById("result");
+  const species = document.getElementById("species").value;
+  const today = new Date();
+
+  const dateText = today.toLocaleDateString("fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  });
+
+  result.innerHTML = "<div class='status-line'>Récupération météo...</div>";
+
+  const url =
+    "https://api.open-meteo.com/v1/forecast?latitude=" + lat +
+    "&longitude=" + lon +
+    "&current=temperature_2m,precipitation,pressure_msl,wind_speed_10m,cloud_cover" +
+    "&daily=sunrise,sunset" +
+    "&forecast_days=1" +
+    "&timezone=auto";
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    const weather = data.current;
+
+    const sunrise = new Date(data.daily.sunrise[0]);
+    const sunset = new Date(data.daily.sunset[0]);
+
+    const moon = getMoonPhase();
+    const season = getSeason(species);
+    const carnassier = getCarnassierBonus(weather, species);
+    const timeAdvice = getBestFishingTimes(today, sunrise, sunset);
+    const learning = getLearningAdvice(species);
+
+    let score = 50;
+
+    score += moon.score;
+    score += season.score;
+    score += carnassier.score;
+    score += timeAdvice.score;
+
+    if (weather.pressure_msl >= 1008 && weather.pressure_msl <= 1020) score += 15;
+    else score -= 10;
+
+    if (weather.wind_speed_10m >= 5 && weather.wind_speed_10m <= 25) score += 10;
+    else score -= 10;
+
+    if (weather.precipitation > 0 && weather.precipitation <= 2) score += 10;
+    if (weather.precipitation > 5) score -= 15;
+
+    if (weather.cloud_cover >= 40 && weather.cloud_cover <= 90) score += 10;
+
+    score = Math.max(0, Math.min(100, score));
+
+    let avis = "Conditions moyennes.";
+    let scoreClass = "medium";
+
+    if (score >= 75) {
+      avis = "Très bonnes conditions 🎣";
+      scoreClass = "good";
+    } else if (score >= 50) {
+      avis = "Conditions correctes 👍";
+      scoreClass = "medium";
+    } else {
+      avis = "Conditions difficiles";
+      scoreClass = "bad";
+    }
+
+    lastSessionData = {
+      date: dateText,
+      species: species,
+      score: score,
+      temperature: weather.temperature_2m,
+      pression: weather.pressure_msl,
+      vent: weather.wind_speed_10m,
+      pluie: weather.precipitation,
+      nuages: weather.cloud_cover,
+      lune: moon.label,
+      saison: season.label
+    };
+
+    result.innerHTML =
+      "<div class='section-title'>Résultat</div>" +
+      "<div class='score-wrap'><div class='score " + scoreClass + "'>" + score + "<small>/100</small></div></div>" +
+      "<h2>" + avis + "</h2>" +
+      "<div class='grid'>" +
+        infoBox("Date", dateText) +
+        infoBox("Spot", savedSpot ? "Dernier spot" : "Position actuelle") +
+        infoBox("Espèce", prettySpecies(species)) +
+        infoBox("Saison", season.label) +
+      "</div>" +
+      "<hr>" +
+      "<div class='section-title'>Météo</div>" +
+      "<div class='grid'>" +
+        infoBox("Température", weather.temperature_2m + " °C") +
+        infoBox("Pression", weather.pressure_msl + " hPa") +
+        infoBox("Vent", weather.wind_speed_10m + " km/h") +
+        infoBox("Nuages", weather.cloud_cover + " %") +
+      "</div>" +
+      "<hr>" +
+      "<div class='section-title'>Meilleurs horaires</div>" +
+      "<p class='status-line'>Lever : " + formatHour(sunrise) + " · Coucher : " + formatHour(sunset) + "</p>" +
+      "<p><strong>" + timeAdvice.message + "</strong></p>" +
+      "<hr>" +
+      "<div class='section-title'>Analyse</div>" +
+      "<p class='status-line'>Lune : " + moon.label + "</p>" +
+      "<p>" + carnassier.message + "</p>" +
+      "<p>" + getAdvice(species, weather, score) + "</p>" +
+      "<hr>" +
+      "<div class='section-title'>Apprentissage</div>" +
+      "<p class='status-line'>" + learning + "</p>";
+
+  } catch (error) {
+    result.innerHTML = "<div class='status-line'>Erreur : impossible de récupérer la météo.</div>";
+  }
+}
+
+function infoBox(label, value) {
+  return "<div class='info'><small>" + label + "</small><strong>" + value + "</strong></div>";
+}
+
+function saveSession(resultat) {
+  if (!lastSessionData) {
+    alert("Analyse d’abord la météo avant d’enregistrer une session.");
+    return;
+  }
+
+  const sessions = JSON.parse(localStorage.getItem("sessionsPeche")) || [];
+
+  sessions.push({
+    date: lastSessionData.date,
+    espece: lastSessionData.species,
+    resultat: resultat,
+    score: lastSessionData.score,
+    temperature: lastSessionData.temperature,
+    pression: lastSessionData.pression,
+    vent: lastSessionData.vent,
+    pluie: lastSessionData.pluie,
+    nuages: lastSessionData.nuages,
+    lune: lastSessionData.lune,
+    saison: lastSessionData.saison
+  });
+
+  localStorage.setItem("sessionsPeche", JSON.stringify(sessions));
+  showHistory();
+  updateStats();
+
+  alert("Session enregistrée 👍");
+}
+
+function showHistory() {
+  const history = document.getElementById("history");
+  const sessions = JSON.parse(localStorage.getItem("sessionsPeche")) || [];
+
+  if (sessions.length === 0) {
+    history.innerHTML = "<div class='status-line'>Aucune session enregistrée.</div>";
+    updateStats();
+    return;
+  }
+
+  let html = "";
+
+  sessions.slice().reverse().forEach(function(session, index) {
+    const realIndex = sessions.length - 1 - index;
+
+    const hasWeather =
+      session.temperature !== undefined && session.temperature !== "-" &&
+      session.pression !== undefined && session.pression !== "-" &&
+      session.vent !== undefined && session.vent !== "-";
+
+    html +=
+      "<div class='session'>" +
+      "<strong>" + session.date + "</strong>" +
+      "<div class='session-row'><span>Espèce</span><b>" + prettySpecies(session.espece) + "</b></div>" +
+      "<div class='session-row'><span>Résultat</span><b>" + (session.resultat === "prise" ? "Poisson pris 🎣" : "Rien ✕") + "</b></div>";
+
+    if (hasWeather) {
+      html +=
+        "<div class='session-row'><span>Score</span><b>" + session.score + "/100</b></div>" +
+        "<div class='session-row'><span>Température</span><b>" + session.temperature + " °C</b></div>" +
+        "<div class='session-row'><span>Pression</span><b>" + session.pression + " hPa</b></div>" +
+        "<div class='session-row'><span>Vent</span><b>" + session.vent + " km/h</b></div>" +
+        "<div class='session-row'><span>Lune</span><b>" + session.lune + "</b></div>";
+    } else {
+      html +=
+        "<div class='status-line'>Historique restauré manuellement : les données météo détaillées de cette ancienne prise ne sont pas disponibles.</div>";
+    }
+
+    html +=
+      "<button class='small-danger' onclick='deleteSession(" + realIndex + ")'>Supprimer</button>" +
+      "</div>";
+  });
+
+  history.innerHTML = html;
+  updateStats();
+}
+
+function deleteSession(index) {
+  const confirmDelete = confirm("Supprimer cette session de pêche ?");
+
+  if (!confirmDelete) return;
+
+  const sessions = JSON.parse(localStorage.getItem("sessionsPeche")) || [];
+  sessions.splice(index, 1);
+  localStorage.setItem("sessionsPeche", JSON.stringify(sessions));
+  showHistory();
+
+  alert("Session supprimée 👍");
+}
+
+function clearHistory() {
+  const confirmClear = confirm("Supprimer tout l’historique ? Cette action est définitive.");
+
+  if (!confirmClear) return;
+
+  localStorage.removeItem("sessionsPeche");
+  showHistory();
+
+  alert("Historique effacé 👍");
+}
+
+function getLearningAdvice(species) {
+  const sessions = JSON.parse(localStorage.getItem("sessionsPeche")) || [];
+  const prises = sessions.filter(s => s.espece === species && s.resultat === "prise");
+
+  if (prises.length < 3) {
+    return "Pas encore assez de données. Enregistre quelques sorties pour que l’application apprenne tes meilleures conditions.";
+  }
+
+  const avgPressure = Math.round(
+    prises.reduce((sum, s) => sum + s.pression, 0) / prises.length
+  );
+
+  const avgScore = Math.round(
+    prises.reduce((sum, s) => sum + s.score, 0) / prises.length
+  );
+
+  return "D’après tes prises enregistrées, tu réussis souvent avec une pression autour de " +
+    avgPressure + " hPa et un score moyen de " + avgScore + "/100.";
+}
+
+function formatHour(date) {
+  return date.toLocaleTimeString("fr-FR", {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+function getBestFishingTimes(now, sunrise, sunset) {
+  const oneHour = 60 * 60 * 1000;
+
+  const morningStart = new Date(sunrise.getTime() - oneHour);
+  const morningEnd = new Date(sunrise.getTime() + 2 * oneHour);
+
+  const eveningStart = new Date(sunset.getTime() - 2 * oneHour);
+  const eveningEnd = new Date(sunset.getTime() + oneHour);
+
+  if (now >= morningStart && now <= morningEnd) {
+    return { score: 12, message: "Très bon moment : autour du lever du soleil." };
+  }
+
+  if (now >= eveningStart && now <= eveningEnd) {
+    return { score: 12, message: "Très bon moment : autour du coucher du soleil." };
+  }
+
+  if (now < morningStart) {
+    return { score: 4, message: "Prochain bon créneau : " + formatHour(morningStart) + " à " + formatHour(morningEnd) };
+  }
+
+  if (now < eveningStart) {
+    return { score: 4, message: "Prochain bon créneau : " + formatHour(eveningStart) + " à " + formatHour(eveningEnd) };
+  }
+
+  return { score: 0, message: "Les meilleurs créneaux du jour sont passés." };
+}
+
+function getMoonPhase() {
+  const date = new Date();
+  const cycle = 29.530588;
+  const knownNewMoon = new Date("2000-01-06T18:14:00Z");
+  const days = (date - knownNewMoon) / (1000 * 60 * 60 * 24);
+  const moonAge = ((days % cycle) + cycle) % cycle;
+
+  if (moonAge < 1.5 || moonAge > 28) return { label: "Nouvelle lune", score: 8 };
+  if (moonAge > 13 && moonAge < 16) return { label: "Pleine lune", score: 8 };
+  if (moonAge > 6 && moonAge < 9) return { label: "Premier quartier", score: 4 };
+  if (moonAge > 21 && moonAge < 24) return { label: "Dernier quartier", score: 4 };
+
+  return { label: "Phase intermédiaire", score: 0 };
+}
+
+function getSeason(species) {
+  const month = new Date().getMonth() + 1;
+  let label = "";
+  let score = 0;
+
+  if (month === 12 || month === 1 || month === 2) label = "hiver";
+  if (month >= 3 && month <= 5) label = "printemps";
+  if (month >= 6 && month <= 8) label = "été";
+  if (month >= 9 && month <= 11) label = "automne";
+
+  if (["brochet", "sandre", "perche", "aspe", "chevesne"].includes(species)) {
+    if (label === "automne" || label === "hiver") score += 8;
+    if (label === "été") score -= 3;
+  }
+
+  if (["gardon", "carassin", "carpe", "goujon"].includes(species)) {
+    if (label === "printemps" || label === "été") score += 10;
+    if (label === "hiver") score -= 5;
+  }
+
+  if (species === "truite") {
+    if (label === "printemps" || label === "automne") score += 10;
+    if (label === "été") score -= 6;
+  }
+
+  return { label: label, score: score };
+}
+
+function getCarnassierBonus(weather, species) {
+  let score = 0;
+  let message = "Analyse adaptée à l’espèce choisie.";
+
+  if (["brochet", "sandre", "perche", "aspe", "chevesne"].includes(species)) {
+    if (weather.cloud_cover > 60) score += 8;
+    if (weather.wind_speed_10m >= 8 && weather.wind_speed_10m <= 22) score += 8;
+    if (weather.pressure_msl >= 1008 && weather.pressure_msl <= 1018) score += 8;
+    if (weather.precipitation > 0 && weather.precipitation <= 2) score += 5;
+
+    if (score >= 20) message = "Très bon profil : temps couvert, vent correct et pression favorable.";
+    else if (score >= 10) message = "Profil correct pour l’espèce choisie.";
+    else message = "Profil moyen : privilégie les postes connus.";
+  }
+
+  if (["gardon", "carassin", "carpe", "goujon", "truite"].includes(species)) {
+    if (weather.temperature_2m >= 8 && weather.temperature_2m <= 23) score += 10;
+    if (weather.wind_speed_10m < 20) score += 5;
+    if (weather.precipitation <= 2) score += 5;
+
+    message = "Profil poisson blanc / salmonidé : cherche les zones calmes, oxygénées ou réchauffées selon l’espèce.";
+  }
+
+  return { score: score, message: message };
+}
+
+function getAdvice(species, weather, score) {
+  if (score >= 70) {
+    return "Bonne fenêtre de pêche. Insiste sur les postes marqués.";
+  }
+
+  if (species === "brochet") return "Brochet : bordures, herbiers, zones d’ombre, animation lente.";
+  if (species === "sandre") return "Sandre : cassures, fonds durs, zones profondes, pêche lente.";
+  if (species === "perche") return "Perche : obstacles, petits poissons fourrage, bordures et animations variées.";
+  if (species === "gardon") return "Gardon : amorce légère, ligne fine, zones calmes.";
+  if (species === "carassin") return "Carassin : zones peu profondes, calmes, chaudes, vase ou herbiers.";
+  if (species === "carpe") return "Carpe : bordures, hauts-fonds, herbiers, amorçage progressif.";
+  if (species === "truite") return "Truite : cherche l’eau fraîche, les arrivées d’eau, les zones oxygénées et les veines de courant.";
+  if (species === "chevesne") return "Chevesne : bordures, arbres, courant lent, approche discrète et petits appâts.";
+  if (species === "goujon") return "Goujon : fonds sableux ou graveleux, petits appâts, pêche fine près du fond.";
+  if (species === "aspe") return "Aspe : zones de courant, chasses en surface, animation rapide et leurres compacts.";
+
+  return "Pêche lentement et insiste sur les zones connues.";
+}
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("service-worker.js");
+}
+
+restoreKnownHistoryIfNeeded();
+showHistory();
+updateStats();
+</script>
+
+
+<script>
+function updateActiveNav() {
+  const sections = ["accueil", "historique", "stats-section"];
+  const navs = document.querySelectorAll(".nav-item");
+
+  let current = "accueil";
+
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    const rect = el.getBoundingClientRect();
+
+    if (rect.top <= 140 && rect.bottom >= 140) {
+      current = id;
+    }
+  });
+
+  navs.forEach(nav => {
+    nav.classList.remove("active");
+
+    const href = nav.getAttribute("href");
+
+    if (
+      (current === "accueil" && href === "#accueil") ||
+      (current === "historique" && href === "#historique") ||
+      (current === "stats-section" && href === "#stats-section")
+    ) {
+      nav.classList.add("active");
+    }
+  });
+}
+
+window.addEventListener("scroll", updateActiveNav);
+window.addEventListener("load", updateActiveNav);
+
+document.querySelectorAll(".nav-item").forEach(item => {
+  item.addEventListener("click", function() {
+    document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+    this.classList.add("active");
+  });
+});
+</script>
+
+</body>
+</html>
